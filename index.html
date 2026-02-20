@@ -279,6 +279,8 @@ function afterSubmit(event) {
   event.preventDefault();
 
   const form = event.target;
+  data.name = form.Name.value;
+  data.email = form.Email.value;
 
   fetch(form.action, {
     method: "POST",
@@ -287,13 +289,12 @@ function afterSubmit(event) {
   });
 
   options.innerHTML = "";
-  say("Vielen Dank.");
-  say("Ich melde mich bei Ihnen, um einen Termin für eine persönliche Live-Demo zu vereinbaren.");
-  say("Die Demo findet virtuell statt.");
+    say("Vielen Dank.");
+    say("Wie möchten Sie weiter vorgehen?");
 
-   options.innerHTML = `
-    <button onclick="restart()">Zurück zum Anfang</button>
-    <button onclick="buyBot()">Angebot für operativen Agenten anfragen</button>
+  options.innerHTML = `
+    <button onclick="requestDemo()">Termin für persönliche Live-Demo anfragen</button>
+    <button onclick="buyBot()">Unverbindliches Angebot anfragen</button>
   `;
 }
   
@@ -320,11 +321,11 @@ Geplanter Einsatzbereich / Aufgabenbeschreibung:
 
 Bevorzugte Kontaktaufnahme:
 ☐ E-Mail
-☐ Telefon
+☐ Telefon (Rückrufnummer: ____________________)
 ☐ Video-Call (z. B. Microsoft Teams)
 
-Kontaktperson:
-Telefonnummer (optional):
+Kontaktperson: ${data.name || ""}
+E-Mail-Adresse: ${data.email || ""}
 
 Freundliche Grüsse
 `
@@ -333,7 +334,44 @@ Freundliche Grüsse
   window.location.href =
     `mailto:DEINEEMAIL@DOMAIN.CH?subject=${subject}&body=${body}`;
 }
+function requestDemo() {
+  const subject = encodeURIComponent(
+    "Anfrage: Persönliche Live-Demo – Operativer Agent"
+  );
 
+  const body = encodeURIComponent(
+`Guten Tag
+
+Vielen Dank für den Demo-Ablauf auf Ihrer Website.
+
+Ich interessiere mich für eine persönliche Live-Demo des operativen Agenten.
+
+Die folgenden Angaben wurden im Demo-Ablauf erfasst und können bei Bedarf angepasst werden.
+
+Unternehmensname:
+Branche: ${data.branch || ""}
+Unternehmensgrösse: ${data.size || ""}
+Primärer Anwendungsfall: ${data.usecase || ""}
+Konkretes Ziel: ${data.goal || ""}
+
+Bevorzugte Termine / Zeitfenster:
+
+
+Bevorzugtes Tool (z. B. Microsoft Teams, Zoom, Telefon):
+
+
+Kontaktperson: ${data.name || ""}
+E-Mail-Adresse: ${data.email || ""}
+Telefonnummer:
+
+Freundliche Grüsse
+`
+  );
+
+  window.location.href =
+    `mailto:DEINEEMAIL@DOMAIN.CH?subject=${subject}&body=${body}`;
+}
+  
 function startDemo() {
   say("Danke für Ihr Interesse.");
 }
