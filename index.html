@@ -245,8 +245,11 @@ function goal(g) {
   }
 
   // 3) Abschluss / Call-to-Action
+  say("Im nächsten Schritt erfassen wir Ihre Kontaktdaten.");
+  say("Danach können Sie wählen, ob Sie eine persönliche Live-Demo wünschen oder ein unverbindliches Angebot anfragen möchten.");
+  
   options.innerHTML = `
-    <button onclick="lead()">Weiter</button>
+    <button onclick="lead()">Kontaktdaten eingeben</button>
     <button onclick="restart()">Beenden</button>
   `;
 }
