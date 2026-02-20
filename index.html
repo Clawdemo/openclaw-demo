@@ -131,14 +131,17 @@ function goal(g) {
 function lead() {
   clear();
   say("Bitte gib deinen Namen und deine E-Mail an. Ich sende dir den Demo-Link.");
+
   options.innerHTML = `
-    <form action="https://formspree.io/f/xaqddbbb" method="POST">
+    <form onsubmit="afterSubmit(event)" action="FORM_ACTION_HIER_EINSETZEN" method="POST">
       <input type="hidden" name="Use-Case" value="${data.usecase}">
       <input type="hidden" name="Branche" value="${data.branch}">
       <input type="hidden" name="Firmengrösse" value="${data.size}">
       <input type="hidden" name="Ziel" value="${data.goal}">
+
       <input name="Name" placeholder="Name" required>
       <input name="Email" type="email" placeholder="E-Mail" required>
+
       <button type="submit">Demo-Link erhalten</button>
     </form>
   `;
@@ -151,6 +154,35 @@ function restart() {
     <button onclick="useCase('Leads')">Lead-Qualifizierung</button>
     <button onclick="useCase('Wissen')">Interner Wissensbot</button>
   `;
+}
+  
+function afterSubmit(event) {
+  event.preventDefault();
+
+  const form = event.target;
+
+  fetch(form.action, {
+    method: "POST",
+    body: new FormData(form),
+    headers: { "Accept": "application/json" }
+  });
+
+  options.innerHTML = "";
+  say("Danke! Du hast nun mehrere Möglichkeiten.");
+
+  options.innerHTML = `
+    <button onclick="startDemo()">Live-Demo starten</button>
+    <button onclick="buyBot()">Bot direkt kaufen</button>
+  `;
+}
+  
+function buyBot() {
+  window.location.href =
+    "mailto:DEINEEMAIL@DOMAIN.CH?subject=Bot direkt kaufen&body=Ich möchte den Bot direkt bestellen.";
+}
+
+function startDemo() {
+  say("Die Live-Demo wird dir per E-Mail zugeschickt.");
 }
 </script>
 
