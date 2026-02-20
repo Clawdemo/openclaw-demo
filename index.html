@@ -7,42 +7,109 @@
 
   <style>
   body {
-    font-family: Arial, sans-serif;
-    max-width: 720px;
-    margin: 40px auto;
-    padding: 0 16px;
-    line-height: 1.5;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 760px;
+    margin: 60px auto;
+    padding: 0 20px;
+    line-height: 1.6;
+    color: #1f2933;
+    background: #fafafa;
   }
 
-  #bot {
-    border: 1px solid #ccc;
-    padding: 16px;
-    max-width: 420px;
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 8px;
   }
 
-  .msg {
-    margin-bottom: 12px;
+  h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 32px;
   }
 
-  button {
-    margin: 4px 4px 4px 0;
-    padding: 6px 12px;
-    cursor: pointer;
-    border-radius: 6px;
-    border: 1px solid #999;
-    background: #f5f5f5;
+  p {
+    color: #4b5563;
     font-size: 14px;
   }
 
+  hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 32px 0;
+  }
+
+  #bot {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 460px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  .msg {
+    margin-bottom: 14px;
+    font-size: 14px;
+    color: #111827;
+  }
+
+  .msg strong {
+    font-weight: 600;
+  }
+
+  #options {
+    margin-top: 12px;
+  }
+
+  button {
+    display: inline-block;
+    margin: 6px 6px 0 0;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    color: #111827;
+    cursor: pointer;
+  }
+
   button:hover {
-    background: #eaeaea;
+    background: #f3f4f6;
+  }
+
+  button:focus {
+    outline: none;
+    border-color: #9ca3af;
   }
 
   input {
     width: 100%;
-    padding: 6px;
-    margin-bottom: 8px;
-    box-sizing: border-box;
+    padding: 8px;
+    font-size: 13px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+  }
+
+  small {
+    color: #6b7280;
+    font-size: 12px;
+  }
+
+  .reset {
+    margin-top: 16px;
+    font-size: 12px;
+    color: #6b7280;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .reset:hover {
+    text-decoration: underline;
   }
 </style>
 </head>
@@ -56,11 +123,11 @@
 <h2>Live-Demo</h2>
 
 <div id="bot">
-  <button onclick="restart()" style="margin-top:12px;">
-  Zurück zum Anfang
-  </button>
+  <button class="reset" onclick="restart()">Zurück zum Anfang</button>
   <div id="chat">
-    <div class="msg"><strong>Bot:</strong> Was möchtest du sehen?</div>
+    <div class="msg"><strong>Bot:</strong> Guten Tag.<br>
+Ich zeige strukturierte Anwendungsfälle für den Einsatz von Bots in Unternehmen.<br>
+Welchen Anwendungsfall möchten Sie betrachten?</div>
   </div>
 
   <div id="options">
@@ -90,7 +157,7 @@ function clear() { options.innerHTML = ""; }
 function useCase(type) {
   data.usecase = type;
   clear();
-  say(`Alles klar. Für welche Branche arbeitest du?`);
+  say(`Alles klar. Für welche Branche arbeiten Sie?`);
   options.innerHTML = `
     <button onclick="branch('Dienstleistung')">Dienstleistung</button>
     <button onclick="branch('Beratung')">Beratung</button>
@@ -101,7 +168,7 @@ function useCase(type) {
 function branch(b) {
   data.branch = b;
   clear();
-  say("Wie gross ist dein Unternehmen?");
+  say("Wie gross ist Ihr Unternehmen?");
   options.innerHTML = `
     <button onclick="size('1–5')">1–5</button>
     <button onclick="size('6–20')">6–20</button>
@@ -112,7 +179,7 @@ function branch(b) {
 function size(s) {
   data.size = s;
   clear();
-  say("Was ist dein Hauptziel?");
+  say("Was ist Ihr Hauptziel?");
   options.innerHTML = `
     <button onclick="goal('Support')">Support entlasten</button>
     <button onclick="goal('Leads')">Leads filtern</button>
@@ -123,17 +190,18 @@ function size(s) {
 function goal(g) {
   data.goal = g;
   clear();
-  say("Basierend auf deinen Angaben ist ein Bot für dein Unternehmen sinnvoll.");
-  say("Möchtest du Zugang zur Live-Demo mit echtem Bot erhalten?");
+  say("Für diesen Anwendungsfall ist ein Bot in vielen Unternehmen sinnvoll, wenn wiederkehrende Abläufe oder klar strukturierte Fragen bestehen.");
+  say("Ob sich der Einsatz lohnt, hängt vom tatsächlichen Volumen und der Standardisierbarkeit ab.");
+  say("Möchten Sie den nächsten Schritt gehen?");
   options.innerHTML = `
-    <button onclick="lead()">Ja, Live-Demo erhalten</button>
-    <button onclick="restart()">Nein, danke</button>
+    <button onclick="lead()">Live-Demo mit echtem Bot ansehen</button>
+    <button onclick="restart()">Beenden</button>
   `;
 }
 
 function lead() {
   clear();
-  say("Bitte gib deinen Namen und deine E-Mail an. Ich sende dir den Demo-Link.");
+  say("Bitte geben Sie Ihren Namen und Ihre E-Mail-Adresse an. Ich sende Ihnen den Zugang zur Live-Demo.");
 
   options.innerHTML = `
     <form onsubmit="afterSubmit(event)" action="FORM_ACTION_HIER_EINSETZEN" method="POST">
@@ -151,7 +219,7 @@ function lead() {
 }
 
 function restart() {
-  chat.innerHTML = `<div class="msg"><strong>Bot:</strong> Was möchtest du sehen?</div>`;
+  chat.innerHTML = `<div class="msg"><strong>Bot:</strong> Guten Tag. Welchen Anwendungsfall möchten Sie betrachten?</div>`;
   options.innerHTML = `
     <button onclick="useCase('Support')">Support-Bot</button>
     <button onclick="useCase('Leads')">Lead-Qualifizierung</button>
@@ -171,21 +239,24 @@ function afterSubmit(event) {
   });
 
   options.innerHTML = "";
-  say("Danke! Du hast nun mehrere Möglichkeiten.");
+  say("Vielen Dank.");
+  say("Sie erhalten einen Zugang zur Live-Demo.");
+  say("Alternativ kann der Bot auch direkt für Ihr Unternehmen eingerichtet werden.");
+  say("Eine Beratung ist optional.");
 
   options.innerHTML = `
     <button onclick="startDemo()">Live-Demo starten</button>
-    <button onclick="buyBot()">Bot direkt kaufen</button>
+    <button onclick="buyBot()">Bot direkt bestellen</button>
   `;
 }
   
 function buyBot() {
   window.location.href =
-    "mailto:DEINEEMAIL@DOMAIN.CH?subject=Bot direkt kaufen&body=Ich möchte den Bot direkt bestellen.";
+    "mailto:DEINEEMAIL@DOMAIN.CH?subject=Bot direkt bestellen&body=Ich möchte den Bot direkt bestellen.";
 }
 
 function startDemo() {
-  say("Die Live-Demo wird dir per E-Mail zugeschickt.");
+  say("Danke für Ihr Interesse.");
 }
 </script>
 
