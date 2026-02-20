@@ -158,7 +158,11 @@ const evaluations = {
   Wissen: [
     "Für internes Wissen ist ein Bot sinnvoll, wenn Informationen häufig gesucht, aber schwer auffindbar sind.",
     "Der Nutzen zeigt sich besonders bei Onboarding und wiederkehrenden internen Fragen."
-  ]
+  ],
+  Operativ: [
+  "Für administrative und operative Aufgaben ist ein Agent sinnvoll, wenn Abläufe klar definiert sind.",
+  "Der Nutzen entsteht durch die Übernahme wiederkehrender Tätigkeiten über mehrere Kanäle hinweg."
+  ],
 };  
 
 function say(text) {
@@ -206,15 +210,20 @@ function size(s) {
   options.innerHTML = `
     <button onclick="goal('Support')">Support entlasten</button>
     <button onclick="goal('Leads')">Leads filtern</button>
-    <button onclick="goal('Intern')">Internes Wissen</button>
+    <button onclick="goal('Wissen')">Internes Wissen</button>
   `;
 }
 
 function goal(g) {
   data.goal = g;
   clear();
-  say(data.evaluation[0]);
-  say(data.evaluation[1]);
+  if (!data.evaluation) {
+    say("Dieser Anwendungsfall wird individuell bewertet.");
+    say("Der konkrete Nutzen hängt von den vorhandenen Prozessen ab.");
+  } else {
+    say(data.evaluation[0]);
+    say(data.evaluation[1]);
+  }
 
   say("Der Einsatz eines operativen Agenten ist in vielen Unternehmen sinnvoll,");
   say("wenn wiederkehrende Aufgaben klar strukturiert sind und regelbasiert ausgeführt werden können.");
