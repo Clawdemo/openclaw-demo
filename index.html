@@ -82,7 +82,23 @@
   Ohne Koordinationsaufwand und ohne manuelles Nachfassen.
 </p>
 
-<button onclick="document.getElementById('demo').scrollIntoView()">Demo ansehen</button>
+<button onclick="track('demo_scrolled'); document.getElementById('demo').scrollIntoView()">
+  Demo ansehen
+</button>
+
+<section>
+  <h2>Typische Einsatzbereiche</h2>
+
+  <div class="box">
+    <h3>Sporthalle mit fixen Nutzungsregeln</h3>
+    <p>Hohe Auslastung, klare Prioritäten und regelbasierte Vergabe.</p>
+  </div>
+
+  <div class="box">
+    <h3>Vereinslokal mit flexibler Nutzung</h3>
+    <p>Viele Rückfragen, wechselnde Anforderungen und hoher Abstimmungsaufwand.</p>
+  </div>
+</section>
 
 <section id="demo">
   <h2>Interaktive Demo</h2>
@@ -96,7 +112,35 @@
   <p><small>Die Demo bildet einen realistischen Ablauf ab.</small></p>
 </section>
 
+<section>
+  <h2>Nächster Schritt</h2>
+  <p>Wir zeigen Ihnen, wie dieser Ablauf in Ihrer Organisation aussehen würde.</p>
+
+  <button onclick="track('demo_requested'); requestDemo()">
+    Persönliche Demo anfragen
+  </button>
+
+  <button onclick="track('offer_requested'); requestOffer()">
+    Unverbindliches Angebot anfragen
+  </button>
+</section>
+
+<section>
+  <h2>Feedback</h2>
+  <p>Hat Ihnen etwas gefehlt oder war etwas unklar?</p>
+
+  <button onclick="track('feedback_clicked'); requestFeedback()">
+    Feedback geben
+  </button>
+</section>
+
 <script>
+/* -------- Tracking (lokal, anonym) -------- */
+function track(event) {
+  console.log("TRACK:", event);
+}
+
+/* -------- Demo -------- */
 const chat = document.getElementById("chat");
 const options = document.getElementById("options");
 let demo = {};
@@ -121,8 +165,8 @@ function startDemo() {
   say("Um welchen Raum handelt es sich?");
 
   options.innerHTML = `
-    <button onclick="selectRoom('Sporthalle')">Sporthalle</button>
-    <button onclick="selectRoom('Vereinslokal')">Vereinslokal</button>
+    <button onclick="track('room_sporthalle'); selectRoom('Sporthalle')">Sporthalle</button>
+    <button onclick="track('room_vereinslokal'); selectRoom('Vereinslokal')">Vereinslokal</button>
   `;
 }
 
@@ -179,6 +223,22 @@ function selectPurpose(purpose) {
       <button onclick="startDemo()">Neue Anfrage simulieren</button>
     `;
   }, 700);
+}
+
+/* -------- Mail-Funktionen -------- */
+function requestDemo() {
+  window.location.href =
+    "mailto:DEINEEMAIL@DOMAIN.CH?subject=Anfrage: Persönliche Demo OpenClaw";
+}
+
+function requestOffer() {
+  window.location.href =
+    "mailto:DEINEEMAIL@DOMAIN.CH?subject=Anfrage: Operativer Agent für unser Unternehmen";
+}
+
+function requestFeedback() {
+  window.location.href =
+    "mailto:DEINEEMAIL@DOMAIN.CH?subject=Feedback zur OpenClaw Website";
 }
 
 startDemo();
