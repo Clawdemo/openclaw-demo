@@ -10,6 +10,7 @@
       --accent: #0f4c5c;
       --text-main: #1f2933;
       --text-sub: #4b5563;
+      --text-muted: #6b7280;
       --bg-page: #fafafa;
       --bg-box: #ffffff;
       --border: #e5e7eb;
@@ -111,14 +112,20 @@
       font-size: 12px;
       background: transparent;
       border: none;
-      color: #6b7280;
+      color: var(--text-muted);
       cursor: pointer;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       padding: 0;
     }
 
     .reset:hover {
       text-decoration: underline;
+    }
+
+    .microcopy {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
     }
 
     .msg {
@@ -134,7 +141,7 @@
 
     small {
       font-size: 12px;
-      color: #6b7280;
+      color: var(--text-muted);
     }
   </style>
 </head>
@@ -149,8 +156,8 @@
     <div class="box">
       <h3>Gemeindeverwaltung</h3>
       <p>
-        Automatisierte Reservationen für Gemeinderäumlichkeiten nach klar definierten Nutzungs-
-        und Belegungsregeln.
+        Automatisierte Reservationen für Gemeinderäumlichkeiten nach klar definierten
+        Nutzungs- und Belegungsregeln.
       </p>
     </div>
 
@@ -174,8 +181,11 @@
 
   <div id="bot">
     <button class="reset" onclick="startDemo()">Von vorne beginnen</button>
+    <div class="microcopy">Startet die Demo neu.</div>
+
     <div id="chat"></div>
     <div class="bot-options" id="options"></div>
+    <div id="context"></div>
   </div>
 
   <p><small>Vereinfachte Darstellung eines realen Ablaufs.</small></p>
@@ -205,11 +215,18 @@ function track(event) {
   console.log("TRACK:", event);
 }
 
-/* Demo-Logik unverändert */
-
 const chat = document.getElementById("chat");
 const options = document.getElementById("options");
+const context = document.getElementById("context");
 let state = {};
+
+function clearContext() {
+  context.innerHTML = "";
+}
+
+function setContext(text) {
+  context.innerHTML = `<div class="microcopy">${text}</div>`;
+}
 
 function typeText(el, text, speed = 25) {
   return new Promise(resolve => {
@@ -247,12 +264,15 @@ async function startDemo() {
   state = {};
   chat.innerHTML = "";
   clearOptions();
+  clearContext();
 
   await saySequence([
     "Guten Tag.",
     "Ich bearbeite Reservationen nach den geltenden Vorgaben.",
     "Für welchen Bereich möchten Sie eine Reservation simulieren?"
   ]);
+
+  setContext("Die Auswahl dient nur zur Darstellung des Ablaufs.");
 
   options.innerHTML = `
     <button onclick="selectDomain('Gemeinde')">Gemeindeverwaltung</button>
@@ -263,6 +283,8 @@ async function startDemo() {
 async function selectDomain(domain) {
   state.domain = domain;
   clearOptions();
+  clearContext();
+
   await say("Bereich gewählt: " + domain + ".");
   await say("Bitte wählen Sie eine Ressource.");
 
@@ -279,8 +301,12 @@ async function selectDomain(domain) {
 
 async function selectResource(resource) {
   clearOptions();
+  clearContext();
+
   await say("Ressource gewählt: " + resource + ".");
   await say("Bitte wählen Sie einen verfügbaren Termin.");
+
+  setContext("Angezeigte Zeiten sind beispielhaft.");
 
   options.innerHTML = `
     <button onclick="selectTime('12.10.2026, 18:00–20:00')">12.10.2026 · 18:00–20:00</button>
@@ -291,6 +317,8 @@ async function selectResource(resource) {
 
 async function selectTime(time) {
   clearOptions();
+  clearContext();
+
   await say("Termin ausgewählt: " + time + ".");
   await say("Bitte wählen Sie den Zweck der Nutzung.");
 
@@ -299,11 +327,14 @@ async function selectTime(time) {
 
 async function finish() {
   clearOptions();
+  clearContext();
+
   await saySequence([
     "Die Reservation entspricht den geltenden Vorgaben.",
-    "Der Termin wird reserviert und dokumentiert.",
-    "Sonderfälle werden automatisch weiterbearbeitet."
+    "Der Termin wird gemäss Vorgaben reserviert und dokumentiert."
   ]);
+
+  setContext("In der realen Nutzung erfolgt hier die verbindliche Buchung.");
 
   options.innerHTML = `<button onclick="startDemo()">Neue Reservation simulieren</button>`;
 }
@@ -312,10 +343,12 @@ function requestDemo() {
   window.location.href =
     "mailto:DEINEEMAIL@DOMAIN.CH?subject=Ablauf Resa für unsere Organisation besprechen";
 }
+
 function requestOffer() {
   window.location.href =
     "mailto:DEINEEMAIL@DOMAIN.CH?subject=Angebot: Resa für unsere Organisation";
 }
+
 function requestFeedback() {
   window.location.href =
     "mailto:DEINEEMAIL@DOMAIN.CH?subject=Rückmeldung zur Resa Demo";
