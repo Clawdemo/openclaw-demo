@@ -324,8 +324,8 @@ async function selectTime(time) {
 async function finish(purpose) {
   clearOptions(); clearContext();
   await say("Zweck erfasst: " + purpose + ".");
-  await say("Die Reservation entspricht den geltenden Vorgaben.");
-  await say("Der Termin wird gemäss Vorgaben reserviert und dokumentiert.");
+  await say("Die Reservation entspricht den geltenden Regeln.");
+  await say("Der Termin wird reserviert und dokumentiert.");
   setContext("In der realen Nutzung erfolgt hier die verbindliche Buchung.");
 
   options.innerHTML = `<button onclick="startDemo()">Neue Reservation simulieren</button>`;
