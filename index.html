@@ -18,7 +18,6 @@
 
     h1 { font-size: 24px; font-weight: 600; margin-bottom: 16px; }
     h2 { font-size: 18px; font-weight: 600; margin-top: 48px; margin-bottom: 12px; }
-
     p { font-size: 14px; color: #374151; }
 
     section { margin-top: 60px; }
@@ -37,12 +36,12 @@
     button:hover { background: #f3f4f6; }
 
     .reset {
-      margin-top: 12px;
       font-size: 12px;
       background: transparent;
       border: none;
       color: #6b7280;
       cursor: pointer;
+      margin-bottom: 8px;
     }
 
     .reset:hover { text-decoration: underline; }
@@ -78,17 +77,16 @@
 </h1>
 
 <p>
-  Resa übernimmt die administrative Abwicklung von Raumreservationen.
-  Von der ersten Anfrage bis zur dokumentierten Buchung.
+  Resa übernimmt die administrative Abwicklung von Reservationen
+  für Gemeinden und Vereine – von der Anfrage bis zur dokumentierten Buchung.
 </p>
 
-<button onclick="track('demo_scrolled'); document.getElementById('demo').scrollIntoView()">
+<button onclick="track('scroll_demo'); document.getElementById('demo').scrollIntoView()">
   Demo ansehen
 </button>
 
 <section id="demo">
   <h2>Interaktive Demo</h2>
-  <p>Diese Demo zeigt einen typischen Verwaltungsablauf inklusive Konfliktfall.</p>
 
   <div id="bot">
     <button class="reset" onclick="startDemo()">Von vorne beginnen</button>
@@ -101,25 +99,27 @@
 
 <section>
   <h2>Nächster Schritt</h2>
-  <button onclick="track('demo_requested'); requestDemo()">Persönliche Demo anfragen</button>
-  <button onclick="track('offer_requested'); requestOffer()">Unverbindliches Angebot anfragen</button>
+  <p>Gerne zeigen wir Ihnen den Ablauf für Ihre Organisation.</p>
+
+  <button onclick="track('request_demo'); requestDemo()">Persönliche Demo anfragen</button>
+  <button onclick="track('request_offer'); requestOffer()">Unverbindliches Angebot anfragen</button>
 </section>
 
 <section>
   <h2>Feedback</h2>
-  <button onclick="track('feedback_clicked'); requestFeedback()">Feedback geben</button>
+  <button onclick="track('feedback'); requestFeedback()">Feedback geben</button>
 </section>
 
 <script>
-/* -------- Tracking -------- */
+/* ---------------- Tracking ---------------- */
 function track(event) {
   console.log("TRACK:", event);
 }
 
-/* -------- Schreibsimulation -------- */
+/* ---------------- Schreibsimulation ---------------- */
 const chat = document.getElementById("chat");
 const options = document.getElementById("options");
-let demo = {};
+let state = {};
 
 function typeText(el, text, speed = 25) {
   return new Promise(resolve => {
@@ -157,128 +157,138 @@ function clearOptions() {
   options.innerHTML = "";
 }
 
-/* -------- Demo-Ablauf -------- */
+/* ---------------- Demo-Flow ---------------- */
 async function startDemo() {
-  demo = {};
+  state = {};
   chat.innerHTML = "";
   clearOptions();
 
   await saySequence([
     "Guten Tag.",
-    "Ich bearbeite Raumanfragen nach den geltenden Vorgaben.",
-    "Um welchen Raum handelt es sich?"
+    "Ich bearbeite Reservationen nach den geltenden Vorgaben.",
+    "Für welchen Bereich möchten Sie eine Reservation simulieren?"
   ]);
 
   options.innerHTML = `
-    <button onclick="selectRoom('Sporthalle')">Sporthalle</button>
-    <button onclick="selectRoom('Vereinslokal')">Vereinslokal</button>
+    <button onclick="selectDomain('Gemeinde')">Gemeindeverwaltung</button>
+    <button onclick="selectDomain('Verein')">Verein</button>
   `;
 }
 
-async function selectRoom(room) {
-  demo.room = room;
+async function selectDomain(domain) {
+  state.domain = domain;
+  clearOptions();
+
+  await say("Bereich gewählt: " + domain + ".");
+
+  if (domain === "Gemeinde") {
+    await say("Bitte wählen Sie eine Ressource.");
+    options.innerHTML = `
+      <button onclick="selectResource('Sporthalle')">Sporthalle</button>
+      <button onclick="selectResource('Mehrzweckhalle')">Mehrzweckhalle</button>
+      <button onclick="selectResource('Sitzungszimmer')">Sitzungszimmer</button>
+    `;
+  } else {
+    await say("Bitte wählen Sie einen Raum.");
+    options.innerHTML = `
+      <button onclick="selectResource('Vereinslokal')">Vereinslokal</button>
+      <button onclick="selectResource('Sitzungsraum')">Sitzungsraum</button>
+      <button onclick="selectResource('Trainingsraum')">Trainingsraum</button>
+    `;
+  }
+}
+
+async function selectResource(resource) {
+  state.resource = resource;
   clearOptions();
 
   await saySequence([
-    "Raum erfasst: " + room + ".",
-    "Bitte wählen Sie Datum und Zeit."
+    "Ressource gewählt: " + resource + ".",
+    "Bitte wählen Sie einen verfügbaren Termin."
   ]);
 
   options.innerHTML = `
-    <button onclick="selectTime('12.10.2026, 18:00–20:00', false)">12.10.2026, 18:00–20:00</button>
-    <button onclick="selectTime('14.10.2026, 19:00–21:00', true)">14.10.2026, 19:00–21:00</button>
+    <button onclick="selectTime('12.10.2026, 18:00–20:00')">12.10.2026 · 18:00–20:00</button>
+    <button onclick="selectTime('15.10.2026, 19:00–21:00')">15.10.2026 · 19:00–21:00</button>
+    <button onclick="selectTime('18.10.2026, 10:00–12:00')">18.10.2026 · 10:00–12:00</button>
   `;
 }
 
-async function selectTime(time, conflict) {
-  demo.time = time;
-  demo.conflict = conflict;
+async function selectTime(time) {
+  state.time = time;
   clearOptions();
 
   await saySequence([
-    "Gewünschter Termin: " + time + ".",
+    "Termin ausgewählt: " + time + ".",
     "Bitte wählen Sie den Zweck der Nutzung."
   ]);
 
-  if (demo.room === "Sporthalle") {
-    options.innerHTML = `
-      <button onclick="selectPurpose('Training')">Training</button>
-      <button onclick="selectPurpose('Wettkampf')">Wettkampf</button>
-      <button onclick="selectPurpose('Anlass')">Anlass</button>
-    `;
+  if (state.domain === "Gemeinde") {
+    if (state.resource === "Sporthalle") {
+      options.innerHTML = `
+        <button onclick="finish('Vereinstraining')">Vereinstraining</button>
+        <button onclick="finish('Wettkampf')">Wettkampf</button>
+        <button onclick="finish('Gemeindeveranstaltung')">Gemeindeveranstaltung</button>
+      `;
+    } else if (state.resource === "Mehrzweckhalle") {
+      options.innerHTML = `
+        <button onclick="finish('Anlass')">Anlass</button>
+        <button onclick="finish('Versammlung')">Versammlung</button>
+        <button onclick="finish('Veranstaltung')">Veranstaltung</button>
+      `;
+    } else {
+      options.innerHTML = `
+        <button onclick="finish('Sitzung')">Sitzung</button>
+        <button onclick="finish('Kommission')">Kommission</button>
+        <button onclick="finish('Arbeitsgruppe')">Arbeitsgruppe</button>
+      `;
+    }
   } else {
-    options.innerHTML = `
-      <button onclick="selectPurpose('Sitzung')">Sitzung</button>
-      <button onclick="selectPurpose('Feier / Anlass')">Feier / Anlass</button>
-      <button onclick="selectPurpose('Vermietung')">Vermietung</button>
-    `;
+    if (state.resource === "Vereinslokal") {
+      options.innerHTML = `
+        <button onclick="finish('Vereinssitzung')">Vereinssitzung</button>
+        <button onclick="finish('Interne Veranstaltung')">Interne Veranstaltung</button>
+        <button onclick="finish('Vermietung')">Vermietung</button>
+      `;
+    } else if (state.resource === "Sitzungsraum") {
+      options.innerHTML = `
+        <button onclick="finish('Vorstandssitzung')">Vorstandssitzung</button>
+        <button onclick="finish('Planung')">Planung</button>
+        <button onclick="finish('Workshop')">Workshop</button>
+      `;
+    } else {
+      options.innerHTML = `
+        <button onclick="finish('Training')">Training</button>
+        <button onclick="finish('Kurs')">Kurs</button>
+        <button onclick="finish('Probe')">Probe</button>
+      `;
+    }
   }
 }
 
-async function selectPurpose(purpose) {
-  demo.purpose = purpose;
+async function finish(purpose) {
   clearOptions();
 
-  await say("Die Anfrage wird geprüft.");
-  await new Promise(r => setTimeout(r, 600));
-
-  if (demo.conflict) {
-    await saySequence([
-      "Der gewünschte Termin ist bereits belegt.",
-      "Eine priorisierte Nutzung liegt vor.",
-      "Es können folgende Alternativtermine angeboten werden:"
-    ]);
-
-    options.innerHTML = `
-      <button onclick="acceptAlternative('16.10.2026, 18:00–20:00')">16.10.2026, 18:00–20:00</button>
-      <button onclick="acceptAlternative('18.10.2026, 19:00–21:00')">18.10.2026, 19:00–21:00</button>
-      <button onclick="resolveConflict('escalate')">Zur Entscheidung weiterleiten</button>
-    `;
-  } else {
-    await finishSuccess();
-  }
-}
-
-async function acceptAlternative(time) {
-  clearOptions();
   await saySequence([
-    "Alternativtermin gewählt: " + time + ".",
-    "Die Reservation kann vorbereitet werden.",
-    "Der Vorgang wird dokumentiert und weiterbearbeitet."
+    "Zweck erfasst: " + purpose + ".",
+    "Die Reservation entspricht den geltenden Vorgaben.",
+    "Der Termin wird reserviert und dokumentiert.",
+    "Sonderfälle oder externe Anfragen werden automatisch weiterbearbeitet."
   ]);
 
-  options.innerHTML = `<button onclick="startDemo()">Neue Anfrage simulieren</button>`;
+  options.innerHTML = `
+    <button onclick="startDemo()">Neue Reservation simulieren</button>
+  `;
 }
 
-async function resolveConflict(type) {
-  clearOptions();
-  await saySequence([
-    "Die Anfrage wird zur manuellen Entscheidung weitergeleitet.",
-    "Der Vorgang wird dokumentiert."
-  ]);
-
-  options.innerHTML = `<button onclick="startDemo()">Neue Anfrage simulieren</button>`;
-}
-
-async function finishSuccess() {
-  await saySequence([
-    "Zeitfenster verfügbar.",
-    "Keine Sperrzeit betroffen.",
-    "Die Reservation kann vorbereitet werden.",
-    "Der Vorgang wird dokumentiert und weiterbearbeitet."
-  ]);
-
-  options.innerHTML = `<button onclick="startDemo()">Neue Anfrage simulieren</button>`;
-}
-
-/* -------- Mail -------- */
+/* ---------------- Mail ---------------- */
 function requestDemo() {
   window.location.href =
     "mailto:DEINEEMAIL@DOMAIN.CH?subject=Anfrage: Persönliche Demo Resa";
 }
 function requestOffer() {
   window.location.href =
-    "mailto:DEINEEMAIL@DOMAIN.CH?subject=Anfrage: Reservationsagent Resa für unser Unternehmen";
+    "mailto:DEINEEMAIL@DOMAIN.CH?subject=Anfrage: Reservationsagent Resa für unsere Organisation";
 }
 function requestFeedback() {
   window.location.href =
